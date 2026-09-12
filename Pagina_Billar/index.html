@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Billar - Lounge POS Prototipo</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER SUPERIOR -->
+    <header class="app-header">
+        <div class="brand-container">
+            <img src="logo_billar.jpg" alt="Billar Logo" class="brand-logo">
+            <div class="brand-info">
+                <h1>Billiard Club & Lounge</h1>
+                <p>Sistema de Control Operativo</p>
+            </div>
+        </div>
+
+        <div class="header-status-bar">
+            <!-- Indicador Estado de Caja -->
+            <div id="cajaStatusPill" class="caja-status-pill">
+                <span class="pulse-dot"></span>
+                <span id="cajaStatusText">CAJA #1 - ABIERTA</span>
+            </div>
+
+            <!-- Reloj Digital Vivo -->
+            <div class="live-clock" id="liveClock">00:00:00</div>
+
+            <!-- Usuario Activo -->
+            <div class="user-profile">
+                <div class="avatar">L</div>
+                <div class="user-details">
+                    <span class="user-name">Lucho (Cajero)</span>
+                    <span class="user-role">Turno Tarde</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
+    <nav class="nav-tabs-bar">
+        <button class="nav-tab-btn active" onclick="switchTab('salon')">
+            <i class="fa-solid fa-tablets"></i> Salón de Mesas
+            <span class="tab-badge" id="badgeMesasActivas">2 Activas</span>
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('pos')">
+            <i class="fa-solid fa-cash-register"></i> Venta Directa / Mostrador
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('caja')">
+            <i class="fa-solid fa-vault"></i> Control de Caja y Arqueo
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('productos')">
+            <i class="fa-solid fa-boxes-stacked"></i> Productos e Inventario
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('tarifas')">
+            <i class="fa-solid fa-tags"></i> Tarifas y Mesas
+        </button>
+        <button class="nav-tab-btn" onclick="switchTab('historial')">
+            <i class="fa-solid fa-clock-rotate-left"></i> Historial y Reportes
+        </button>
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="main-wrapper">
+
+        <!-- ==================== PESTAÑA 1: SALÓN DE MESAS ==================== -->
+        <div id="tab-salon" class="tab-content active">
+            <!-- Tarjetas de Métricas Rápidas -->
+            <div class="metrics-row">
+                <div class="metric-card">
+                    <div>
+                        <div class="metric-title">Mesas Libres</div>
+                        <div class="metric-value" id="metricLibres">4</div>
+                    </div>
+                    <div class="metric-icon" style="color: var(--accent-emerald);">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+
+                <div class="metric-card gold">
+                    <div>
+                        <div class="metric-title">Mesas Ocupadas</div>
+                        <div class="metric-value" id="metricOcupadas">2</div>
+                    </div>
+                    <div class="metric-icon" style="color: var(--accent-gold);">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                </div>
+
+                <div class="metric-card blue">
+                    <div>
+                        <div class="metric-title">Consumos en Mesas</div>
+                        <div class="metric-value" id="metricConsumos">Bs 45.00</div>
+                    </div>
+                    <div class="metric-icon" style="color: var(--accent-blue);">
+                        <i class="fa-solid fa-wine-glass"></i>
+                    </div>
+                </div>
+
+                <div class="metric-card purple">
+                    <div>
+                        <div class="metric-title">Recaudado Hoy (Caja)</div>
+                        <div class="metric-value" id="metricTotalCaja">Bs 230.00</div>
+                    </div>
+                    <div class="metric-icon" style="color: var(--accent-purple);">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header del Salón con Filtros -->
+            <div class="floor-header">
+                <div class="section-title">
+                    <i class="fa-solid fa-cubes-stacked" style="color: var(--accent-emerald);"></i>
+                    <span>Estado del Salón de Billar</span>
+                </div>
+                <div class="filter-btn-group">
+                    <button class="filter-btn active" onclick="filterMesas('TODAS', this)">Todas (6)</button>
+                    <button class="filter-btn" onclick="filterMesas('LIBRE', this)">Libres</button>
+                    <button class="filter-btn" onclick="filterMesas('OCUPADA', this)">Ocupadas</button>
+                    <button class="filter-btn" onclick="filterMesas('MANTENIMIENTO', this)">Mantenimiento</button>
+                </div>
+            </div>
+
+            <!-- Grid de Tarjetas de Mesas -->
+            <div class="tables-grid" id="tablesGrid">
+                <!-- Renderizado dinámico vía JavaScript -->
+            </div>
+        </div>
+
+        <!-- ==================== PESTAÑA 2: VENTA DIRECTA (POS COUNTER) ==================== -->
+        <div id="tab-pos" class="tab-content">
+            <div class="pos-layout">
+                <!-- Catálogo de Venta Directa -->
+                <div class="pos-catalog-section">
+                    <div class="section-title" style="margin-bottom: 1rem;">
+                        <i class="fa-solid fa-store" style="color: var(--accent-emerald);"></i>
+                        <span>Venta al Paso / Mostrador (id_sesion = NULL)</span>
+                    </div>
+                    <!-- Búsqueda y Filtros de Producto -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <input type="text" id="searchPosProduct" class="form-control"
+                            placeholder="🔍 Buscar bebida o snack..." oninput="filterPosProducts()">
+                    </div>
+                    <div class="products-grid" id="posProductsGrid">
+                        <!-- Renderizado dinámico de productos -->
+                    </div>
+                </div>
+
+                <!-- Carrito de Venta al Paso -->
+                <div class="pos-cart-section">
+                    <div>
+                        <div class="section-title" style="margin-bottom: 1rem;">
+                            <i class="fa-solid fa-cart-shopping" style="color: var(--accent-gold);"></i>
+                            <span>Orden de Mostrador</span>
+                        </div>
+                        <div class="cart-items-list" id="posCartList">
+                            <p style="color: var(--text-muted); text-align: center; margin-top: 2rem;">El carrito está
+                                vacío. Haz clic en un producto para agregar.</p>
+                        </div>
+                    </div>
+
+                    <div class="cart-total-box">
+                        <div class="cart-row">
+                            <span>Subtotal:</span>
+                            <span id="posSubtotal">Bs 0.00</span>
+                        </div>
+                        <div class="cart-row grand-total">
+                            <span>TOTAL A COBRAR:</span>
+                            <span id="posTotal">Bs 0.00</span>
+                        </div>
+                        <button class="btn btn-primary btn-full" style="margin-top: 1rem; padding: 12px;"
+                            onclick="checkoutPosOrder()">
+                            <i class="fa-solid fa-receipt"></i> Registrar y Cobrar Venta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PESTAÑA 3: CONTROL DE CAJA ==================== -->
+        <div id="tab-caja" class="tab-content">
+            <div class="panel-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div class="section-title">
+                        <i class="fa-solid fa-vault" style="color: var(--accent-purple);"></i>
+                        <span>Arqueo y Control de Turno de Caja</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary" onclick="openAbrirCajaModal()">
+                            <i class="fa-solid fa-key"></i> Abrir Nueva Caja
+                        </button>
+                        <button class="btn btn-danger" onclick="openCierreCajaModal()">
+                            <i class="fa-solid fa-lock"></i> Cerrar Caja y Arqueo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric-card">
+                        <div>
+                            <div class="metric-title">Monto Inicial Apertura</div>
+                            <div class="metric-value" id="cajaMontoInicial">Bs 100.00</div>
+                        </div>
+                    </div>
+                    <div class="metric-card gold">
+                        <div>
+                            <div class="metric-title">Cobros Efectivo</div>
+                            <div class="metric-value" id="cajaTotalEfectivo">Bs 145.00</div>
+                        </div>
+                    </div>
+                    <div class="metric-card blue">
+                        <div>
+                            <div class="metric-title">Cobros QR / Tarjeta</div>
+                            <div class="metric-value" id="cajaTotalQR">Bs 85.00</div>
+                        </div>
+                    </div>
+                    <div class="metric-card purple">
+                        <div>
+                            <div class="metric-title">Total Arqueo Sistema</div>
+                            <div class="metric-value" id="cajaTotalSistema">Bs 330.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; font-size: 1rem; color: var(--text-muted);">Historial de Pagos Vinculados
+                    al Turno (Tabla Pago)</h3>
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID Pago</th>
+                            <th>Fecha/Hora</th>
+                            <th>Origen</th>
+                            <th>Método Pago</th>
+                            <th>Cajero</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cajaPagosTable">
+                        <!-- Pagos renderizados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== PESTAÑA 4: PRODUCTOS E INVENTARIO ==================== -->
+        <div id="tab-productos" class="tab-content">
+            <div class="panel-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="section-title">
+                        <i class="fa-solid fa-boxes-stacked" style="color: var(--accent-emerald);"></i>
+                        <span>Catálogo de Productos y Stock (Tabla Producto)</span>
+                    </div>
+                    <button class="btn btn-primary"
+                        onclick="alert('En el sistema final podrás agregar nuevos productos a la BD.')">
+                        <i class="fa-solid fa-plus"></i> Nuevo Producto
+                    </button>
+                </div>
+
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Categoría</th>
+                            <th>Nombre Producto</th>
+                            <th>Precio Unitario</th>
+                            <th>Stock Actual</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productosTableBody">
+                        <!-- Productos renderizados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== PESTAÑA 5: TARIFAS Y MESAS ==================== -->
+        <div id="tab-tarifas" class="tab-content">
+            <div class="panel-card">
+                <div class="section-title" style="margin-bottom: 1.5rem;">
+                    <i class="fa-solid fa-tags" style="color: var(--accent-gold);"></i>
+                    <span>Gestión de Tarifas de Alquiler por Hora (Tabla Tarifa)</span>
+                </div>
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID Tarifa</th>
+                            <th>Nombre Tarifa</th>
+                            <th>Monto / Hora</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tarifasTableBody">
+                        <!-- Tarifas renderizadas dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== PESTAÑA 6: HISTORIAL Y REPORTES ==================== -->
+        <div id="tab-historial" class="tab-content">
+            <div class="panel-card">
+                <div class="section-title" style="margin-bottom: 1.5rem;">
+                    <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-blue);"></i>
+                    <span>Bitácora de Sesiones Finalizadas (Tabla Sesiones_mesa)</span>
+                </div>
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID Sesión</th>
+                            <th>Mesa</th>
+                            <th>Cliente</th>
+                            <th>Inicio - Fin</th>
+                            <th>Minutos</th>
+                            <th>M. Tiempo</th>
+                            <th>M. Consumo</th>
+                            <th>Total Cobrado</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historialTableBody">
+                        <!-- Historial renderizado dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==========================================================================
+       MODALES FLUYENTES DEL NEGOCIO
+       ========================================================================== -->
+
+    <!-- MODAL 1: ABRIR SESIÓN EN MESA -->
+    <div id="modalAbrirSesion" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-play" style="color: var(--accent-emerald);"></i>
+                    <span id="modalAbrirSesionTitle">Abrir Sesión en Mesa</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('modalAbrirSesion')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalAbrirSesionMesaId">
+                <div class="form-group">
+                    <label class="form-label">Nombre del Cliente / Grupo (Opcional)</label>
+                    <input type="text" id="modalAbrirClienteName" class="form-control"
+                        placeholder="Ej: Juan Pérez / Grupo 8-Ball">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tarifa a Aplicar (Congelada al Iniciar)</label>
+                    <select id="modalAbrirTarifaSelect" class="form-control">
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modalAbrirSesion')">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarAbrirSesion()">
+                    <i class="fa-solid fa-check"></i> Iniciar Cronómetro
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: AGREGAR CONSUMO A MESA -->
+    <div id="modalAgregarConsumo" class="modal-overlay">
+        <div class="modal-container" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-utensils" style="color: var(--accent-gold);"></i>
+                    <span id="modalConsumoTitle">Despachar Bebida / Snack a Mesa</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('modalAgregarConsumo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalConsumoMesaId">
+                <div class="form-group">
+                    <label class="form-label">Seleccionar Producto</label>
+                    <select id="modalConsumoProductoSelect" class="form-control" onchange="updateModalConsumoPreview()">
+                        <!-- Productos cargados -->
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group">
+                        <label class="form-label">Cantidad</label>
+                        <input type="number" id="modalConsumoCantidad" class="form-control" value="1" min="1"
+                            oninput="updateModalConsumoPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subtotal Calculado</label>
+                        <input type="text" id="modalConsumoSubtotal" class="form-control" value="Bs 0.00" readonly
+                            style="font-weight: bold; color: var(--accent-gold);">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modalAgregarConsumo')">Cancelar</button>
+                <button class="btn btn-warning" onclick="confirmarAgregarConsumo()">
+                    <i class="fa-solid fa-plus"></i> Despachar a la Mesa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: COBRAR Y LIQUIDAR MESA -->
+    <div id="modalCobrarSesion" class="modal-overlay">
+        <div class="modal-container" style="max-width: 620px;">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-file-invoice-dollar" style="color: var(--accent-emerald);"></i>
+                    <span id="modalCobrarTitle">Liquidación de Mesa & Cobro</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal('modalCobrarSesion')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalCobrarMesaId">
+
+                <!-- Resumen de Liquidación -->
+                <div class="receipt-box">
+                    <div class="receipt-line">
+                        <span>Mesa / Cliente:</span>
+                        <strong id="recCliente">Mesa 1 - Juan Pérez</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Tiempo Jugado:</span>
+                        <span id="recTiempo">45 min (Bs 15.00/h)</span>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Cobro por Tiempo:</span>
+                        <strong id="recMontoTiempo">Bs 11.25</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Total Consumos (Snacks/Bebidas):</span>
+                        <strong id="recMontoConsumo">Bs 24.00</strong>
+                    </div>
+                    <div class="receipt-line total">
+                        <span>TOTAL A PAGAR (monto_total):</span>
+                        <span id="recMontoTotal">Bs 35.25</span>
+                    </div>
+                </div>
+
+                <!-- Forma de Pago (Soporte Único o Híbrido Efectivo + QR) -->
+                <div class="form-group">
+                    <label class="form-label">Modalidad de Pago</label>
+                    <div class="payment-methods-grid">
+                        <div class="pay-method-card selected" onclick="selectPayMode('EFECTIVO', this)">
+                            <div class="pay-method-icon">💵</div>
+                            <div class="pay-method-name">Efectivo</div>
+                        </div>
+                        <div class="pay-method-card" onclick="selectPayMode('QR', this)">
+                            <div class="pay-method-icon">📱</div>
+                            <div class="pay-method-name">Pago QR</div>
+                        </div>
+                        <div class="pay-method-card" onclick="selectPayMode('HIBRIDO', this)">
+                            <div class="pay-method-icon">⚖️</div>
+                            <div class="pay-method-name">Híbrido (Dividido)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inputs Dinámicos de Cobro -->
+                <div id="payFieldsBox">
+                    <div class="form-group" id="groupPayEfectivo">
+                        <label class="form-label">Efectivo Recibido (Bs)</label>
+                        <input type="number" id="payEfectivoInput" class="form-control" placeholder="0.00"
+                            oninput="calculateChange()">
+                    </div>
+
+                    <div class="form-group" id="groupPayQR" style="display: none;">
+                        <label class="form-label">Monto abonado por QR / Transferencia (Bs)</label>
+                        <input type="number" id="payQRInput" class="form-control" placeholder="0.00"
+                            oninput="calculateChange()">
+                    </div>
+
+                    <div class="split-pay-box">
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px;">
+                            <span>Cambio a devolver al cliente:</span>
+                            <strong id="payCambioDisplay"
+                                style="color: var(--accent-emerald); font-size: 1.1rem; font-family: var(--font-mono);">Bs
+                                0.00</strong>
+                        </div>
+                        <div id="payWarningMessage"
+                            style="font-size: 0.75rem; color: var(--danger-red); display: none;">
+                            ⚠️ El monto ingresado es menor al total a cobrar.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modalCobrarSesion')">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarCobrarSesion()">
+                    <i class="fa-solid fa-print"></i> Finalizar Partida & Registrar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DE TOASTS -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script src="index.js"></script>
+</body>
+
+</html>
